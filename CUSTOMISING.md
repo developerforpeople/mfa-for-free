@@ -153,7 +153,9 @@ against — read them before editing, and test against the emulator.
 ## Things you must never do
 
 1. **Never commit `.env.local` or `.firebaserc`.** They are git-ignored. Leave them that way.
-2. **Never log, store, or transmit a one-time code.** It is computed, compared, discarded.
+2. **Never display, log, store, or transmit a one-time code.** Codes appear only in the user's
+   authenticator app; the site only checks a code the user typed. `src/security.test.ts` fails the
+   build if anything but the TOTP module generates one.
 3. **Never store a recovery code in plaintext.** Hash it.
 4. **Never display a device secret after enrollment.** It is shown once, deliberately.
 5. **Never use `Math.random()`** for a secret, a code, an id, or a salt. Use

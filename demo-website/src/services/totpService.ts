@@ -70,10 +70,7 @@ export class InvalidSecretError extends Error {
  * ways the same key legitimately arrives from a user pasting it.
  */
 export function base32Decode(input: string): Uint8Array {
-  const cleaned = input
-    .toUpperCase()
-    .replace(/[\s-]/g, '')
-    .replace(/=+$/, '');
+  const cleaned = input.toUpperCase().replace(/[\s-]/g, '').replace(/=+$/, '');
 
   if (cleaned === '') {
     throw new InvalidSecretError('The secret is empty.');
@@ -112,6 +109,13 @@ export function counterFor(at: Date = new Date(), period: number = TOTP_PERIOD):
 
 /**
  * Computes the code for a given counter.
+ *
+ * **Verification only. Never use this to show a code to a user.** Codes are
+ * displayed by the user's authenticator app and nowhere else. A website that
+ * renders, logs or returns a code has broken MFA: anyone who knows the password
+ * can read the second factor straight off the screen. The only caller in this
+ * project is `verifyTotp`, and `src/security.test.ts` fails the build if UI
+ * code imports this.
  *
  * Async because Web Crypto is async. That propagates outward, which is why
  * every verification function in this file returns a promise.
@@ -157,7 +161,13 @@ export async function generateForCounter(
   return (binary % 10 ** digits).toString().padStart(digits, '0');
 }
 
-/** Computes the code for an instant. */
+/**
+ * Computes the code for an instant.
+ *
+ * **Verification and tests only. Never display the result.** See the warning on
+ * `generateForCounter` - a website must receive a code the user typed, and
+ * check it with `verifyTotp`. It must never produce one for the user to read.
+ */
 export async function generateTotp(
   secret: string,
   at: Date = new Date(),

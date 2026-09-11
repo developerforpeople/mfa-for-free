@@ -129,7 +129,8 @@ All figures are measured from this repository, not estimated.
 
 | Check | Result |
 |---|---|
-| Automated tests | 35 passing, run by CI on every push |
+| Automated tests | 37 passing, run by CI on every push |
+| Website never generates a code for display | enforced by a test that fails the build |
 | RFC 6238 TOTP vectors (SHA-1, SHA-256, SHA-512) | 18 / 18 |
 | RFC 4226 HOTP vectors | 10 / 10 |
 | RFC 4648 Base32 vectors | 6 |
@@ -218,6 +219,7 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 | Guide | Covers |
 |---|---|
+| [Add MFA to your website](INTEGRATION.md) | The flow, a copy-paste prompt for an AI agent, and a checklist |
 | [What MFA is](docs/mfa-explanation.md) | Why passwords are not enough, and the types of second factor |
 | [How TOTP works](docs/totp-working.md) | Where the six digits come from, with a worked example |
 | [Authentication flow](docs/authentication-flow.md) | Enrollment, sign-in and recovery, step by step |
