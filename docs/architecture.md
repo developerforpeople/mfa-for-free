@@ -156,7 +156,7 @@ A few decisions that are not obvious from the folder names:
 **Why separate `services/` from `components/`?**
 Because the moment a component knows about Firebase, you cannot render it in a test or a Storybook
 without a network. Keeping the boundary means the UI is testable and the data layer is swappable —
-if Phase 2 moves from Firestore to something else, one directory changes.
+if the project ever moves off Firestore, one directory changes.
 
 **Why is the demo website separate from the authenticator app?**
 Because they are genuinely different security domains. The website is the party asking "who are

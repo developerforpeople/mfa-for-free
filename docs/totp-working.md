@@ -4,8 +4,10 @@
 > **Goal:** by the end you should be able to explain, without hand-waving, where the six digits
 > come from and why two disconnected devices agree on them.
 
-This page explains the algorithm. **Phase 1 contains no implementation** — the code lands in
-Phase 3. Read this first so that when the code arrives, none of it is a surprise.
+This page explains the algorithm. The implementation is
+[`demo-website/src/services/totpService.ts`](../demo-website/src/services/totpService.ts), and
+`totpService.test.ts` beside it checks that code against the published RFC vectors. Read this page
+first and the code will hold no surprises.
 
 ---
 

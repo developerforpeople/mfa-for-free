@@ -96,7 +96,7 @@ replaceable.
 
 A component that imports `firebase/firestore` is a component you cannot render in a test, cannot
 reason about in isolation, and cannot reuse. Keeping the boundary is what makes the data layer
-swappable when Phase 2 changes how it works.
+swappable if the backend ever changes.
 
 Imports use the `@/` alias for anything outside the current folder:
 

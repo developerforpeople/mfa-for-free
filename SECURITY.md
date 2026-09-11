@@ -17,7 +17,7 @@ Learn from this code. Do not deploy this code.
 
 | Version | Supported |
 |---|---|
-| `main` (Phase 1) | ✅ Fixes land here |
+| `main` | ✅ Fixes land here |
 | Tagged releases | ❌ None published yet |
 
 Until version 1.0, security fixes are applied to `main` only.
@@ -56,7 +56,8 @@ We practise coordinated disclosure. Please give us a reasonable window before pu
 ## In Scope
 
 - Secret handling: generation, transport, storage, and destruction
-- The TOTP implementation (once Phase 3 lands): drift windows, replay, truncation
+- The TOTP implementation (`demo-website/src/services/totpService.ts`): drift windows, replay,
+  truncation
 - Recovery code generation, hashing, and single-use enforcement
 - Firestore security rules that would let one identity read or modify another's data
 - Enrollment flows that allow a device to be linked to an account that did not authorise it
@@ -79,10 +80,13 @@ These are the invariants. A change that breaks one of them is a bug, whatever el
    They are computed, compared, and discarded.
 2. **One-time passwords are generated on the device.** The authenticator never receives a code from
    the server, so there is no code in transit to intercept.
-3. **Device secrets are encrypted at rest.** The TOTP seed is stored under AES-GCM with a key held
-   in the platform keystore (Android Keystore / iOS Keychain), never in plaintext preferences.
-4. **The shared secret crosses the boundary exactly once**, during QR enrollment, over TLS, in a
-   single-use provisioning payload with a short expiry.
+3. **Device secrets belong encrypted at rest.** On the phone that is the authenticator app's job:
+   a good one keeps the seed under a key held by the platform keystore. On the server, **the demo
+   stores it unencrypted** so the whole flow stays readable — a documented shortcut, and one a
+   production build must replace with encryption under a key the client never sees.
+4. **The shared secret crosses the boundary once**, during QR enrollment, over TLS. The demo shows
+   it on one screen and discards any earlier pending enrollment; it does **not** enforce an expiry
+   on the QR, which a production build should.
 5. **Verification is offline-capable.** Only the current time is shared between the two sides.
 6. **Recovery codes are stored hashed and burned on use.** They are credentials, treated like
    passwords, not like data.

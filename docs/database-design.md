@@ -234,8 +234,9 @@ Two rules deserve emphasis:
 **`secretEncrypted` is readable by the owner in the rules above — and that is a problem.** Firestore
 rules grant access per document, not per field. A production version must keep secrets out of the
 client's reach entirely, either in a separate collection the client cannot read, or behind a Cloud
-Function that returns only safe fields. Phase 2 will do the latter; the note is here so the
-limitation is not mistaken for a design.
+Function that returns only safe fields. The demo does neither yet —
+[the Cloud Functions example](../examples/integration-examples/firebase-cloud-functions.md) shows
+the second approach — and the note is here so the limitation is not mistaken for a design.
 
 **Recovery codes are `read, write: if false`.** No client ever needs to read them. Redemption
 happens in server code using the Admin SDK, which bypasses rules by design.
@@ -272,18 +273,18 @@ Deleting an identity must cascade. An orphaned `devices` subcollection still hol
 
 ---
 
-## 6b. What Phase 2 Actually Implements
+## 6b. What the Demo Actually Implements
 
-The schema above is the design target. The Phase 2 demo implements a simplified version of it, and
+The schema above is the design target. The demo implements a simplified version of it, and
 the differences are worth knowing before you read the code and wonder which is wrong.
 
-| Design (above) | Phase 2 implementation | Why |
+| Design (above) | Demo implementation | Why |
 |---|---|---|
 | `devices` as a subcollection | `devices` as an **array field** on `users/{uid}` | Fewer moving parts for a first read, and a security rule that fits on one line. A subcollection is the better shape once devices are numerous or written concurrently. |
-| `secretEncrypted` + `secretIv` + `keyVersion` | plaintext `secret` | Enrollment runs in the browser, which has nowhere safe to keep an encryption key. Encryption requires a Cloud Function - Phase 3. |
+| `secretEncrypted` + `secretIv` + `keyVersion` | plaintext `secret` | Enrollment runs in the browser, which has nowhere safe to keep an encryption key. Encryption requires a Cloud Function - see [the Cloud Functions example](../examples/integration-examples/firebase-cloud-functions.md). |
 | Recovery codes subcollection | `recoveryCodes` **array of objects** on the user document | Ten codes is a small, bounded set that is always read together, so an array avoids ten document reads per verification. A subcollection is the right shape once the set grows or needs per-code rules. |
 | Audit events subcollection | not present | Still unbuilt. |
-| - | **`usernames/{usernameLower}`** | New in Phase 2. Login takes a username, but Firebase authenticates with an email address, so something has to map one to the other *before* the user is signed in. |
+| - | **`usernames/{usernameLower}`** | Added by the demo. Login takes a username, but Firebase authenticates with an email address, so something has to map one to the other *before* the user is signed in. |
 
 ### Recovery codes, as actually stored
 
@@ -356,8 +357,9 @@ npm install -g firebase-tools
 firebase emulators:start --only firestore,auth
 ```
 
-Point `VITE_FIREBASE_USE_EMULATOR=true` in `.env.local` at it. Phase 2 will ship seed data and
-rules tests.
+Point `VITE_FIREBASE_USE_EMULATOR=true` in `.env.local` at it. Seed data and automated
+security-rules tests are not included yet; the Emulator UI at <http://127.0.0.1:4000> is the
+quickest way to inspect what the app writes.
 
 ---
 

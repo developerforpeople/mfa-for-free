@@ -9,7 +9,7 @@
 
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-1f6feb"></a>
-  <img alt="Status: Phase 2" src="https://img.shields.io/badge/status-all%20phases%20complete-15803d-64748b">
+  <img alt="Status: all phases complete" src="https://img.shields.io/badge/status-all%20phases%20complete-15803d">
   <img alt="Docs" src="https://img.shields.io/badge/docs-in%20repo-0f172a">
 </p>
 
