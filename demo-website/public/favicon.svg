@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="NLR Identity">
+  <rect width="32" height="32" rx="6" fill="#0B1F3A"/>
+  <path d="M16 6l8 3.2v6.1c0 4.7-3.3 8.6-8 9.7-4.7-1.1-8-5-8-9.7V9.2L16 6z"
+        fill="none" stroke="#1F6FEB" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M12.4 15.9l2.6 2.6 4.6-5" fill="none" stroke="#F8FAFC"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

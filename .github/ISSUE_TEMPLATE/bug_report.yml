@@ -1,0 +1,40 @@
+name: Bug report
+description: Something in the demo website or the documentation is wrong
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not use this form for security vulnerabilities. See
+        [SECURITY.md](https://github.com/your-org/nlr-identity/blob/main/SECURITY.md)
+        for private reporting.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run npm run dev
+        2. Open http://localhost:5173
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: 'Node 22.12, Windows 11, Chrome 140'
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console output
+      description: Paste any errors. Remove anything that looks like a credential.
+      render: shell

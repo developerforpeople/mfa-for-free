@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same branch - no point checking a stale commit.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  demo-website:
+    name: Demo website
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: demo-website
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: demo-website/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The same three commands CONTRIBUTING.md asks you to run before pushing.
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+  authenticator-app:
+    name: Authenticator app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: authenticator-app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # JDK 17: Gradle 8.14 cannot parse Java 25, which is what Android Studio
+      # now bundles. Pinning here keeps CI honest about what actually builds.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Verify formatting
+        run: dart format --set-exit-if-changed .
+
+      # The RFC 6238 / 4226 / 4648 conformance vectors live here. If these fail,
+      # the app no longer interoperates with other authenticators.
+      - name: Test
+        run: flutter test
+
+      - name: Build debug APK
+        run: flutter build apk --debug

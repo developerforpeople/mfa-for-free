@@ -1,0 +1,162 @@
+/* ---------------------------------------------------------------------------
+ * NLR Identity - design system
+ *
+ * Tailwind CSS v4 is configured in CSS rather than a JS config file. The
+ * `@theme` block below defines design tokens; Tailwind generates the matching
+ * utilities (`bg-navy-900`, `text-slate-600`, `rounded-card`, and so on).
+ *
+ * Design direction: enterprise security tooling, not a startup landing page.
+ * The reference points are GitHub, Cloudflare, Linear, and the Stripe docs -
+ * restrained colour, hairline borders, small radii, dense readable type.
+ *
+ * Rules for contributors:
+ *   - Use tokens. No raw hex values in components.
+ *   - No gradients beyond a single subtle surface wash.
+ *   - No glassmorphism, glows, or decorative blur.
+ *   - Radii stay small: 6px for cards, 6px for buttons. Never pills.
+ * ------------------------------------------------------------------------- */
+
+@import 'tailwindcss';
+
+@theme {
+  /* --- Brand: deep navy ------------------------------------------------- */
+  /* Primary surface colour. Used for the header, footer, and headings.     */
+  --color-navy-50: #f1f5fa;
+  --color-navy-100: #dde6f2;
+  --color-navy-200: #b9cbe3;
+  --color-navy-300: #8aa8cd;
+  --color-navy-400: #547fb1;
+  --color-navy-500: #2f5b8f;
+  --color-navy-600: #1c4270;
+  --color-navy-700: #143257;
+  --color-navy-800: #0f2745;
+  --color-navy-900: #0f172a; /* Primary - deep navy */
+  --color-navy-950: #060d1a;
+
+  /* --- Accent: professional blue ---------------------------------------- */
+  /* Actions, links, focus rings. Deliberately close to GitHub's blue.      */
+  --color-accent-50: #eef4ff;
+  --color-accent-100: #dbe7ff;
+  --color-accent-200: #bed4ff;
+  --color-accent-300: #91b7ff;
+  --color-accent-400: #5d90fa;
+  --color-accent-500: #3b74f0;
+  --color-accent-600: #2563eb; /* Accent - professional blue */
+  --color-accent-700: #1a54c4;
+  --color-accent-800: #1a459c;
+  --color-accent-900: #1b3d7c;
+
+  /* --- Neutrals: slate --------------------------------------------------
+   * Body copy, borders, and page background. Tailwind ships a slate ramp,
+   * but it is redeclared here so the palette is legible in one place and so
+   * `surface` / `border-hairline` read as intent rather than as a shade.
+   * --------------------------------------------------------------------- */
+  --color-slate-50: #f8fafc; /* Background - off-white */
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0; /* Hairline borders */
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569; /* Secondary - slate gray, body copy */
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+
+  /* --- Semantic --------------------------------------------------------- */
+  --color-success-600: #15803d;
+  --color-warning-600: #b45309;
+  --color-danger-600: #b91c1c;
+
+  /* --- Typography -------------------------------------------------------
+   * Inter with a full system fallback, so the page renders correctly even
+   * when the webfont is blocked or still loading.
+   * --------------------------------------------------------------------- */
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --font-mono:
+    'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
+    monospace;
+
+  /* --- Radii: small, on purpose ----------------------------------------- */
+  --radius-card: 6px;
+  --radius-control: 6px;
+
+  /* --- Elevation --------------------------------------------------------
+   * Borders do most of the work here; shadows are a whisper, not a glow.
+   * --------------------------------------------------------------------- */
+  --shadow-subtle: 0 1px 2px 0 rgb(15 23 42 / 0.04);
+  --shadow-raised: 0 1px 3px 0 rgb(15 23 42 / 0.08), 0 1px 2px -1px rgb(15 23 42 / 0.06);
+}
+
+/* --- Base ---------------------------------------------------------------- */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Anchored sections should not hide behind the sticky header. */
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-white);
+    color: var(--color-slate-600);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem; /* 15px - documentation density, not marketing size */
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--color-navy-900);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+  }
+
+  /* One visible focus style everywhere, for keyboard users. Never remove it. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-600);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-accent-100);
+    color: var(--color-navy-900);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* --- Component patterns --------------------------------------------------
+ * Only genuinely repeated patterns live here. Everything else is utilities
+ * in the component file, where it is easier to find.
+ * ------------------------------------------------------------------------ */
+
+@layer components {
+  /* The faint grid used behind the hero. Deliberately almost invisible -
+     texture, not decoration. */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgb(15 23 42 / 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(15 23 42 / 0.045) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+}

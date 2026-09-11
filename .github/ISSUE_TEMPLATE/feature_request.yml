@@ -1,0 +1,29 @@
+name: Feature request
+description: Suggest something the project should do
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check the [phase plan](https://github.com/your-org/nlr-identity#project-status) first.
+        Features scheduled for a later phase are already tracked.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the gap, not the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What are you proposing?
+    validations:
+      required: true
+  - type: textarea
+    id: teaching-value
+    attributes:
+      label: What does it teach?
+      description: This is an educational project. Features earn their place by explaining something.
+    validations:
+      required: true

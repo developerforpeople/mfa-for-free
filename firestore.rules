@@ -1,0 +1,123 @@
+rules_version = '2';
+
+// NLR Identity - Firestore security rules
+//
+// These rules are the real access control. The route guards in the React app
+// hide UI; they protect nothing, because anyone can edit client-side state or
+// call the Firestore SDK directly with their own token. If a rule below is
+// wrong, no amount of front-end code makes the data safe.
+//
+// Deploy with:
+//     firebase deploy --only firestore:rules
+//
+// Test against the emulator before deploying. See docs/database-design.md.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helpers ---------------------------------------------------------
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Fields a client is allowed to send when creating its own profile.
+    function hasValidProfileShape(uid) {
+      let data = request.resource.data;
+      return data.uid == uid
+        && data.name is string      && data.name.size() > 0 && data.name.size() <= 80
+        && data.username is string  && data.username.size() >= 3 && data.username.size() <= 20
+        && data.usernameLower == data.username.lower()
+        && data.nlrIdentity is string
+        // The identity must be on the closed domain. Enforced here as well as in
+        // the UI, because the UI is not a control - it is a convenience.
+        && data.nlrIdentity.matches('^[a-z][a-z0-9._-]{2,19}@nlr[.]com$')
+        // A new profile always starts with MFA off and nothing enrolled.
+        && data.mfaEnabled == false
+        && data.devices.size() == 0
+        && data.recoveryCodes.size() == 0;
+    }
+
+    // Fields the owner may change after creation. Identity, username, and uid
+    // are immutable: letting a client rewrite `nlrIdentity` would let it point
+    // its profile at somebody else's identity.
+    function onlyMutableFieldsChanged() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['name', 'devices', 'mfaEnabled', 'recoveryCodes']);
+    }
+
+    // --- users/{uid} ------------------------------------------------------
+    //
+    // A profile is readable and writable only by the account it belongs to.
+    // This is the rule the whole demo turns on: without it, any signed-in user
+    // could read every other user's device secrets.
+
+    match /users/{uid} {
+      allow get, list: if isOwner(uid);
+
+      allow create: if isOwner(uid) && hasValidProfileShape(uid);
+
+      allow update: if isOwner(uid) && onlyMutableFieldsChanged();
+
+      // Account deletion is a server-side operation: it has to cascade to the
+      // username claim, and a client that deletes only the profile leaves an
+      // orphaned claim nobody can reuse.
+      allow delete: if false;
+
+      // No subcollections are used in Phase 2. Deny by default rather than
+      // leaving a gap for a future feature to fall through.
+      match /{document=**} {
+        allow read, write: if false;
+      }
+    }
+
+    // --- usernames/{usernameLower} ---------------------------------------
+    //
+    // The public username index: username -> { uid, nlrIdentity }.
+    //
+    // TRADE-OFF, stated openly: this collection is world-readable, because the
+    // login form has to resolve a username to an identity *before* the user is
+    // authenticated. That means usernames are enumerable by anyone who guesses
+    // one, and it reveals the identity derived from a known username.
+    //
+    // That is an acceptable cost here - the documents hold no secrets and no
+    // personal data beyond a name the user chose to be public - but it is a
+    // real trade-off, not an oversight. The production alternative is a Cloud
+    // Function that performs the lookup server-side and is rate-limited, so
+    // the collection can stay private.
+
+    match /usernames/{usernameLower} {
+      allow get: if true;
+
+      // No listing. Reading one username you already know is very different
+      // from downloading every username in the database.
+      allow list: if false;
+
+      // A claim can only be created by the user it points at, and only if it
+      // does not already exist - `create` (rather than `write`) is what makes
+      // the claim first-come, first-served and permanent.
+      allow create: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'nlrIdentity'])
+        && usernameLower == usernameLower.lower();
+
+      // Claims are immutable. Allowing an update would let someone repoint an
+      // established username at a different account - which is exactly how an
+      // account-takeover-by-impersonation works.
+      allow update, delete: if false;
+    }
+
+    // --- Default deny ------------------------------------------------------
+    //
+    // Anything not matched above is refused. New collections must opt in
+    // explicitly, so a feature added later cannot accidentally ship readable.
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,38 @@
+name: Documentation
+description: A page is confusing, incomplete, or wrong
+labels: ['documentation']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        "I don't understand why this works" is a legitimate issue in this repository.
+        It usually means the explanation needs improving, not that you missed something.
+  - type: dropdown
+    id: page
+    attributes:
+      label: Which page?
+      options:
+        - README.md
+        - docs/architecture.md
+        - docs/authentication-flow.md
+        - docs/mfa-explanation.md
+        - docs/totp-working.md
+        - docs/database-design.md
+        - demo-website/README.md
+        - authenticator-app/README.md
+        - examples/
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is unclear or incorrect?
+      description: Quote the paragraph that lost you, if you can.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+      description: Optional. Even a rough idea helps.

@@ -1,0 +1,79 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Build output
+dist/
+dist-ssr/
+build/
+*.local
+
+# Environment — never commit real credentials
+.env
+.env.local
+.env.*.local
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+*-service-account*.json
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test / coverage
+coverage/
+.nyc_output/
+
+# Flutter / Dart
+authenticator-app/.dart_tool/
+authenticator-app/build/
+authenticator-app/.flutter-plugins*
+authenticator-app/**/*.g.dart
+authenticator-app/.pub-cache/
+authenticator-app/.pub/
+authenticator-app/*.iml
+authenticator-app/doc/api/
+
+# Android build output and machine-specific paths.
+# local.properties holds absolute SDK paths - never commit it.
+authenticator-app/android/local.properties
+authenticator-app/android/.gradle/
+authenticator-app/android/app/debug/
+authenticator-app/android/app/profile/
+authenticator-app/android/app/release/
+authenticator-app/android/key.properties
+authenticator-app/**/*.jks
+authenticator-app/**/*.keystore
+
+# iOS / macOS
+authenticator-app/ios/Pods/
+authenticator-app/ios/.symlinks/
+authenticator-app/ios/Flutter/Flutter.framework
+authenticator-app/ios/Flutter/Flutter.podspec
+authenticator-app/ios/Flutter/Generated.xcconfig
+authenticator-app/ios/Flutter/flutter_export_environment.sh
+# Firebase CLI project selection - copy .firebaserc.example to .firebaserc
+.firebaserc
+
+# Platform config for the Flutter app. Not a high-value secret (these are
+# client identifiers, like the web config), but there is no reason to publish
+# one project's identifiers in a repo other people fork.
+authenticator-app/android/app/google-services.json
+authenticator-app/ios/Runner/GoogleService-Info.plist
+authenticator-app/lib/firebase_options.dart

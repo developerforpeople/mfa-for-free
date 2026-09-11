@@ -1,0 +1,12 @@
+# Normalise line endings so Windows and Unix contributors do not fight the diff.
+* text=auto eol=lf
+
+# Binary and generated files
+*.png binary
+*.jpg binary
+*.svg text eol=lf
+package-lock.json linguist-generated=true -diff
+
+# Keep the language stats honest on GitHub.
+docs/** linguist-documentation
+examples/** linguist-documentation
