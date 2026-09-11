@@ -1,209 +1,236 @@
 <h1 align="center">NLR Identity</h1>
 
-<p align="center"><strong>Learn MFA. Build Secure Applications.</strong></p>
+<p align="center"><strong>Learn MFA. Build Secure Authentication.</strong></p>
 
 <p align="center">
-  An open-source, educational multi-factor authentication platform for students and developers
-  who want to understand how enterprise authentication actually works.
+  An open-source, educational multi-factor authentication platform. Read the code, follow the
+  flow end to end, and see exactly how a second factor works.
 </p>
 
 <p align="center">
+  <a href="https://github.com/developerforpeople/mfa-for-free/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/developerforpeople/mfa-for-free/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-1f6feb"></a>
-  <img alt="Status: all phases complete" src="https://img.shields.io/badge/status-all%20phases%20complete-15803d">
-  <img alt="Docs" src="https://img.shields.io/badge/docs-in%20repo-0f172a">
+  <a href="demo-website/src/services/totpService.test.ts"><img alt="RFC 6238: 18/18 vectors" src="https://img.shields.io/badge/RFC%206238-18%2F18%20vectors-15803d"></a>
 </p>
 
 ---
 
-> **NLR Identity is not a clone of Google Authenticator.**
-> It is a teaching implementation. Every layer is documented so you can read the code, follow the
-> flow end to end, and understand *why* each step exists — not just copy it.
+Most developers learn one authentication pattern: username, password, database lookup. NLR Identity
+shows the rest — where a six-digit code comes from, what a QR code actually carries, and how two
+devices that never talk to each other agree on the same number every 30 seconds.
 
----
+It is a working website you can run, plus the documentation that explains every step.
 
-## The Problem
-
-Most students learn exactly one authentication pattern: a username, a password, and a database
-lookup. That is where the syllabus stops. When they join a real engineering team they meet a system
-that looks nothing like it, and the gaps show up fast:
-
-- **MFA** — why a second factor exists at all, and what "something you know / have / are" means in code.
-- **OTP generation** — where a 6-digit code comes from, and why it is not random.
-- **QR enrollment** — what is actually encoded in that square, and why it is shown exactly once.
-- **Device verification** — how a server decides that *this* phone belongs to *that* account.
-- **TOTP** — how two machines that never talk to each other agree on the same number every 30 seconds.
-
-Tutorials tend to hand over a library call. That teaches integration, not authentication.
-
-## The Solution
-
-NLR Identity rebuilds a small but honest MFA system in the open, in layers you can read in an
-afternoon:
-
-1. A **demo website** (React + TypeScript) that plays the role of the relying party — the app that
-   wants to be sure who you are.
-2. **Any standard authenticator app** — Google Authenticator, Microsoft Authenticator,
-   1Password — plays the role of the trusted device, generating codes offline from the secret it
-   scanned. The enrollment QR is a standard `otpauth://` URI, so no custom app is needed.
-3. A **documentation set** that explains the cryptography and the protocol in plain language,
-   with the RFCs linked for when you want the formal version.
-
-You get to see both sides of the handshake, which is the part a single tutorial never shows you.
+> **Educational software.** It takes one deliberate shortcut, described under [Security](#security).
+> Do not use it as the login system for a real product.
 
 ## Features
 
-| | Feature | What it teaches | State |
-|---|---|---|---|
-| ✓ | **NLR Identity Account** | Identity creation, credential storage, account state | Working |
-| ✓ | **QR Device Enrollment** | Out-of-band secret transfer and one-time provisioning | Working |
-| ✓ | **Offline OTP Generation** | TOTP, HMAC, and time-based synchronisation without a network | In your authenticator app |
-| ✓ | **Encrypted Secret Storage** | Protecting the seed at rest with the OS keystore | In your authenticator app |
-| ✓ | **Multiple Device Support** | One identity, many authenticators, per-device revocation | Working |
-| ✓ | **Recovery Codes** | Single-use backup credentials and safe hashing | Working |
-| ✓ | **Open Source Learning Platform** | Readable code, documented decisions, no black boxes | Working |
+- **NLR Identity accounts** — sign up with a name on a closed domain (`john` → `john@nlr.com`),
+  sign in with a username
+- **QR device enrollment** — a standard `otpauth://` QR code that works in Google Authenticator,
+  Microsoft Authenticator, 1Password, or any TOTP app
+- **Device confirmation** — a device stays `pending` until its first code verifies
+- **Two-factor sign-in** — a code is required after the password once a device is active
+- **Multiple devices** — each with its own secret, each revocable on its own
+- **Recovery codes** — ten single-use codes, stored only as hashes
+- **Clock-skew diagnostics** — the site and a CLI tool explain *why* a correct-looking code failed
 
-## Architecture
+## How It Works
+
+### System overview
+
+```mermaid
+flowchart LR
+    APP["Authenticator app<br/>on your phone, offline"]
+    UI["Demo website<br/>in the browser"]
+    LOGIC["totpService, recoveryService<br/>verify codes, hash recovery codes"]
+    AUTH["Firebase Authentication<br/>email + password"]
+    DB[("Firestore<br/>profiles, devices, hashes")]
+
+    APP <-.->|"QR scanned once,<br/>codes typed by you"| UI
+    UI -->|"runs in the browser"| LOGIC
+    UI -->|"sign up, sign in"| AUTH
+    UI <-->|"read and write"| DB
+```
+
+The dotted line is not a network connection. The QR code travels through your phone's camera,
+and each code travels through you. After enrollment, the website and the app never exchange
+anything — each computes the same code from the shared secret and the current time.
+
+### Enrolling a device
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as You
+    participant W as Website
+    participant F as Firestore
+    participant A as Authenticator app
+
+    U->>W: Open MFA setup and name the device
+    Note over W: Generate a 160-bit secret
+    W->>F: Save the device as pending
+    W-->>U: Show the QR code, once
+    U->>A: Scan the QR code
+    A-->>U: Show a 6-digit code
+    U->>W: Type the code
+    Note over W: Accept it if it matches the current<br/>time step, or one step either side
+    W->>F: Mark the device active and store 10 recovery-code hashes
+    W-->>U: Show the recovery codes, once
+```
+
+Typing that first code is the handshake. A code the website can reproduce proves the secret
+arrived intact and that both clocks agree — until then the device cannot be used to sign in.
+
+### Signing in
 
 ```mermaid
 flowchart TD
-    A[User] --> B[Website]
-    B --> C[QR Enrollment]
-    C --> D[Authenticator App]
-    D --> E[OTP Generation]
-    E --> F[Website Verification]
+    A["Enter username and password"] --> B["Find the NLR Identity for that username"]
+    B --> C{"Password correct?"}
+    C -- No --> X["Incorrect username or password"]
+    C -- Yes --> D{"Active device enrolled?"}
+    D -- No --> OK["Dashboard"]
+    D -- Yes --> E["Enter the 6-digit code"]
+    E --> F{"Code matches an active device?"}
+    F -- "Yes, first use" --> G["Record the time step as used"]
+    G --> OK
+    F -- "Yes, already used" --> RP["Rejected as a replay"]
+    RP --> E
+    F -- No --> E
+    E -. "Lost the device" .-> RC["Enter a recovery code"]
+    RC --> H{"Matches an unused code?"}
+    H -- Yes --> I["Burn that code"]
+    I --> OK
+    H -- No --> RC
 ```
 
-The shared secret crosses the boundary exactly once, during enrollment. After that, the phone and
-the server never exchange it again — they independently derive the same code from it.
+The same message is shown for an unknown username and a wrong password, so the form does not
+reveal which usernames exist.
 
-Read the long version in [docs/architecture.md](docs/architecture.md) and
-[docs/authentication-flow.md](docs/authentication-flow.md).
+## Metrics
 
-## Security Principles
+All figures are measured from this repository, not estimated.
 
-These four rules constrain every design decision in the project:
+**Security parameters**
 
-1. **OTPs are never stored.** Not in the database, not in logs, not in a cache. A code that exists
-   in storage is a code an attacker can read.
-2. **OTPs are generated locally.** The authenticator computes the code on the device. Nothing is
-   transmitted to produce it, so there is no OTP in flight to intercept.
-3. **Device secrets are encrypted at rest.** The seed lives on the device under AES-GCM, with the
-   key held by the platform keystore — never in plaintext, never in shared preferences.
-4. **Authentication works offline.** Time is the only input both sides share. Airplane mode,
-   dead Wi-Fi, and a captive portal are all irrelevant to code generation.
+| Parameter | Value |
+|---|---|
+| Shared secret | 160 bits (20 random bytes) |
+| Code | 6 digits, 30-second step, HMAC-SHA1 ([RFC 6238](https://datatracker.ietf.org/doc/html/rfc6238)) |
+| Drift window | ±1 step, about 90 seconds |
+| Chance of a blind guess | 1 in 333,333 with one device (3 of 1,000,000 codes accepted at any moment) |
+| Replay protection | a time step that already succeeded is refused |
+| Recovery codes | 10 codes × 10 characters, 49.1 bits each |
+| Recovery-code storage | PBKDF2-SHA256, 210,000 iterations, a separate salt per code |
 
-A fifth, unofficial one: nothing in this repository is hidden behind a wrapper you cannot read.
+**Correctness**
 
-## Repository Layout
+| Check | Result |
+|---|---|
+| Automated tests | 35 passing, run by CI on every push |
+| RFC 6238 TOTP vectors (SHA-1, SHA-256, SHA-512) | 18 / 18 |
+| RFC 4226 HOTP vectors | 10 / 10 |
+| RFC 4648 Base32 vectors | 6 |
 
-```
-nlr-identity/
-├── docs/                        Written explanations of the system
-│   ├── architecture.md          Components, boundaries, trust model
-│   ├── authentication-flow.md   Enrollment and login, step by step
-│   ├── mfa-explanation.md       Why a second factor exists
-│   ├── totp-working.md          How the 6 digits are computed
-│   └── database-design.md       Firestore collections and rules
-├── demo-website/                React + TypeScript + Vite + Tailwind demo
-├── firestore.rules              Firestore security rules - the real access control
-├── firebase.json                Emulator, rules, and hosting configuration
-└── examples/
-    └── integration-examples/    Drop-in snippets for your own project
-```
+Passing the published vectors is what makes the site agree with every standard authenticator app.
 
-## Running the Demo Locally
+**Size and speed**
 
-Requires **Node.js 20.19+ or 22.12+** and npm.
+| Metric | Value |
+|---|---|
+| Production bundle | 322 kB gzipped — the Firebase SDK is 163 kB of it |
+| Runtime dependencies | 8 |
+| Core authentication logic | 529 lines across 3 files, comments excluded |
+| Generate a code | 0.06 ms |
+| Verify a code | 0.10 ms |
+| Check one recovery-code guess | 28 ms — slow on purpose, to make guessing expensive |
+
+Timings measured with Node 24 on one core of a Windows x64 machine.
+
+## Quick Start
+
+Requires **Node.js 20.19+ or 22.12+**.
 
 ```bash
-# 1. Clone
 git clone https://github.com/developerforpeople/mfa-for-free.git
 cd mfa-for-free/demo-website
-
-# 2. Install
 npm install
-
-# 3. Configure environment
-cp .env.example .env.local     # then add your Firebase project values
-
-# 4. Run
-npm run dev
+cp .env.example .env.local     # add your Firebase project values
+npm run dev                    # http://localhost:5173
 ```
 
-The site is served at <http://localhost:5173>.
+The landing page runs with no configuration. To register and sign in you need a Firebase project
+with **Email/Password** sign-in enabled and `firestore.rules` deployed — the
+[setup guide](docs/firebase-setup.md) covers a real project and the local emulator.
 
-The landing page works with no configuration at all. Registration, sign-in, and MFA enrollment
-need a Firebase project - see [the setup guide](docs/firebase-setup.md), which covers both a real
-project and the local emulator.
+| Command | What it does |
+|---|---|
+| `npm run dev` | Development server with hot reload |
+| `npm test` | RFC conformance and security tests |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript, no emit |
+| `npm run build` | Production build |
+| `npm run totp-doctor -- <key> <code>` | Measures how far your phone's clock is off when a code is rejected |
 
 | Route | Page | Access |
 |---|---|---|
 | `/` | Landing page | Public |
-| `/register` | Create an NLR Identity | Public |
-| `/login` | Sign in with a username | Public |
+| `/register`, `/login` | Create an identity, sign in | Signed out |
 | `/verify` | Second factor at sign-in | Signed in |
-| `/dashboard` | Profile, MFA status, devices, recovery codes | Signed in + verified |
-| `/mfa-setup` | Enrol and confirm a device | Signed in + verified |
+| `/dashboard` | Account, devices, recovery codes | Signed in and verified |
+| `/mfa-setup` | Enrol and confirm a device | Signed in and verified |
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start the Vite dev server with hot reload |
-| `npm run build` | Type-check and produce a production build |
-| `npm run preview` | Serve the production build locally |
-| `npm run lint` | Run ESLint across the project |
-| `npm run typecheck` | Run the TypeScript compiler with no emit |
+## Project Structure
 
-## Project Status
-
-NLR Identity is built in phases so each one stays readable.
-
-| Phase | Scope | State |
-|---|---|---|
-| **1** | Repository foundation, documentation, landing page, design system | ✅ Complete |
-| **2** | Firebase Auth, identity creation, login, MFA enrollment QR | ✅ Complete |
-| **3** | Companion authenticator app | Not published here — any TOTP app works |
-| **4** | Code verification, recovery codes, multi-device management | ✅ Complete |
-
-### Phase 4 completed
-
-- **Code verification** - RFC 6238 verification on the website, with a ±1 step drift window,
-  constant-time comparison, and replay rejection by counter
-- **Enrollment confirmation** - a device stays `pending` until its first code verifies
-- **Recovery codes** - ten single-use credentials, PBKDF2-hashed, issued when MFA is switched on
-- **Login second factor** - `/verify` asks for a code, or a recovery code if the device is gone
-- **Device management** - revoke any device; the last one turning off MFA is spelled out first
-- **Server-side example** - [Cloud Functions walkthrough](examples/integration-examples/firebase-cloud-functions.md)
-  showing how to move verification off the client
-
-### Phase 2 completed
-
-- **Firebase Authentication** - email/password, with the NLR Identity as the address
-- **NLR Identity creation** - `john` becomes `john@nlr.com`; public mail domains are rejected
-- **Firestore profile storage** - `users/{uid}` written atomically with a username claim
-- **Login system** - sign in by username, resolved to an identity before authenticating
-- **MFA enrollment QR preparation** - a Base32 secret, an `otpauth://` URI, and a scannable QR
-
-### The one shortcut, stated plainly
-
-The demo website **verifies codes in the browser**. That is wrong for production - a client can
-claim any result it likes - and the project says so in the code, in the UI, and here.
-
-It is done that way because Cloud Functions require a billing plan, and nobody should have to
-enter card details to learn how MFA works. The verification logic is deliberately free of React
-and Firebase so that moving it server-side is a copy-paste;
-[the Cloud Functions example](examples/integration-examples/firebase-cloud-functions.md) is that
-move, written out in full.
-
-## Contributing
-
-New contributors are welcome, including first-time ones — this is a learning project, and reviews
-are written to teach. Start with [CONTRIBUTING.md](CONTRIBUTING.md).
+```
+mfa-for-free/
+├── demo-website/
+│   └── src/
+│       ├── services/        totpService, recoveryService, mfaService, userService
+│       ├── firebase/        Firebase config, Auth, and Firestore access
+│       ├── pages/           Home, Register, Login, VerifyMfa, Dashboard, MFASetup
+│       ├── components/      UI building blocks and route guards
+│       └── context/         Sign-in and MFA session state
+├── docs/                    How MFA and TOTP work, the flows, the schema, setup
+├── examples/                Adding MFA to your own project, including server-side verification
+├── firestore.rules          Database access control
+└── CUSTOMISING.md           What is safe to change, and what is not
+```
 
 ## Security
 
-This is educational software. Please do not deploy it as the authentication layer of a production
-system. To report a vulnerability in the project itself, follow [SECURITY.md](SECURITY.md).
+- **Codes are never stored or sent.** Your authenticator computes them offline, and the website
+  compares and discards them.
+- **Recovery codes are credentials.** Only PBKDF2 hashes are stored, and each code works once.
+- **`firestore.rules` is the real access control.** The React route guards only hide pages.
+
+**The one shortcut:** the demo verifies codes **in the browser** and stores device secrets
+**unencrypted** in Firestore, so the whole flow is readable without a paid Cloud Functions plan.
+A browser can claim any result it likes, so this is not safe for production.
+[The Cloud Functions example](examples/integration-examples/firebase-cloud-functions.md) shows how to
+move verification to a server.
+
+To report a vulnerability, see [SECURITY.md](SECURITY.md).
+
+## Documentation
+
+| Guide | Covers |
+|---|---|
+| [What MFA is](docs/mfa-explanation.md) | Why passwords are not enough, and the types of second factor |
+| [How TOTP works](docs/totp-working.md) | Where the six digits come from, with a worked example |
+| [Authentication flow](docs/authentication-flow.md) | Enrollment, sign-in and recovery, step by step |
+| [Architecture](docs/architecture.md) | Components and trust boundaries |
+| [Database design](docs/database-design.md) | Firestore collections and rules |
+| [Firebase setup](docs/firebase-setup.md) | Running against a real project or the emulator |
+
+## Contributing
+
+Changing the design or adding your own dashboard is encouraged — read
+[CUSTOMISING.md](CUSTOMISING.md) first, since it marks which files can change freely and which
+carry the security. Then see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[MIT](LICENSE) © NLR Identity contributors
+[MIT](LICENSE)
