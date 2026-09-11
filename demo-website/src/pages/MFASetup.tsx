@@ -213,7 +213,7 @@ export function MFASetup() {
             <section className="mt-7 rounded-card border border-slate-200 bg-white">
               <div className="border-b border-slate-200 px-6 py-3.5">
                 <h2 className="text-[0.9375rem] font-semibold text-navy-900">
-                  Scan this QR code using the NLR Authenticator app
+                  Scan this QR code with your authenticator app
                 </h2>
                 <p className="mt-0.5 text-sm text-slate-500">
                   Enrolling <span className="font-mono text-slate-600">{challenge.deviceName}</span>

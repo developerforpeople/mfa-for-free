@@ -40,34 +40,11 @@ pnpm-debug.log*
 coverage/
 .nyc_output/
 
-# Flutter / Dart
-authenticator-app/.dart_tool/
-authenticator-app/build/
-authenticator-app/.flutter-plugins*
-authenticator-app/**/*.g.dart
-authenticator-app/.pub-cache/
-authenticator-app/.pub/
-authenticator-app/*.iml
-authenticator-app/doc/api/
-
-# Android build output and machine-specific paths.
-# local.properties holds absolute SDK paths - never commit it.
-authenticator-app/android/local.properties
-authenticator-app/android/.gradle/
-authenticator-app/android/app/debug/
-authenticator-app/android/app/profile/
-authenticator-app/android/app/release/
-authenticator-app/android/key.properties
-authenticator-app/**/*.jks
-authenticator-app/**/*.keystore
-
-# iOS / macOS
-authenticator-app/ios/Pods/
-authenticator-app/ios/.symlinks/
-authenticator-app/ios/Flutter/Flutter.framework
-authenticator-app/ios/Flutter/Flutter.podspec
-authenticator-app/ios/Flutter/Generated.xcconfig
-authenticator-app/ios/Flutter/flutter_export_environment.sh
+# Companion Flutter authenticator - kept locally, not published.
+# The website works with any TOTP app (Google Authenticator, Microsoft
+# Authenticator, 1Password), because the enrollment QR is a standard
+# otpauth:// URI.
+authenticator-app/
 # Firebase CLI project selection - copy .firebaserc.example to .firebaserc
 .firebaserc
 

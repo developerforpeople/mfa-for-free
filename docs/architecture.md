@@ -18,11 +18,11 @@ flowchart LR
     subgraph Client["Untrusted zone"]
         U[User]
         W["Demo Website<br/>React + TypeScript"]
-        A["Authenticator App<br/>Flutter · Phase 3"]
+        A["Authenticator App<br/>any TOTP app"]
     end
     subgraph Server["Semi-trusted zone"]
         F["Firebase Firestore<br/>identities · devices · recovery codes"]
-        V["Verification logic<br/>Cloud Functions · Phase 2"]
+        V["Verification logic<br/>browser in the demo · Cloud Functions in production"]
     end
 
     U --> W
@@ -59,11 +59,13 @@ impossible to test and impossible to reason about in isolation.
 
 Stack: React 19, TypeScript 5, Vite 7, Tailwind CSS 4.
 
-### 2.2 Authenticator App (`authenticator-app/`) — Phase 3
+### 2.2 Authenticator App (any TOTP app)
 
 **Role:** the *authenticator* — the trusted device that holds the secret and computes codes.
 
-Planned responsibilities:
+This repository does not ship one, because it does not need to. The enrollment QR is a standard
+`otpauth://` URI, so Google Authenticator, Microsoft Authenticator, 1Password and every other TOTP
+app can play this role. What any of them does:
 
 - Scan the enrollment QR code and parse the `otpauth://` URI
 - Encrypt the extracted secret and write it to device storage
@@ -71,7 +73,7 @@ Planned responsibilities:
 - Manage several enrolled identities on one device
 - Never transmit a secret or a generated code anywhere
 
-Stack: Flutter, Dart. Not implemented in Phase 1.
+Which app is irrelevant to the protocol — that interoperability is the point of a standard.
 
 ### 2.3 Firestore (`Firebase`)
 

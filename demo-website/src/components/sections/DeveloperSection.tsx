@@ -9,12 +9,12 @@ import { siteConfig } from '@/utils/env';
 const steps = [
   {
     title: 'Clone the repository',
-    body: 'Requires Node.js 20.19+ or 22.12+. The Flutter authenticator lives in authenticator-app/ and builds separately.',
+    body: 'Requires Node.js 20.19+ or 22.12+. To enrol a device you can use any authenticator app - Google Authenticator, Microsoft Authenticator, or 1Password.',
     label: 'bash',
     lines: [
       '# Clone and enter the demo website',
-      'git clone https://github.com/your-org/nlr-identity.git',
-      'cd nlr-identity/demo-website',
+      'git clone https://github.com/developerforpeople/mfa-for-free.git',
+      'cd mfa-for-free/demo-website',
       '',
       'npm install',
     ],

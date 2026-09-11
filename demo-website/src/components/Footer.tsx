@@ -8,9 +8,15 @@ const docLinks = [
   { label: 'What MFA is', href: 'docs/mfa-explanation.md' },
   { label: 'How TOTP works', href: 'docs/totp-working.md' },
   { label: 'Database design', href: 'docs/database-design.md' },
+  { label: 'Firebase setup', href: 'docs/firebase-setup.md' },
+  {
+    label: 'Server-side verification',
+    href: 'examples/integration-examples/firebase-cloud-functions.md',
+  },
 ] as const;
 
 const projectLinks = [
+  { label: 'Customising guide', href: 'CUSTOMISING.md' },
   { label: 'Contributing', href: 'CONTRIBUTING.md' },
   { label: 'Security policy', href: 'SECURITY.md' },
   { label: 'Code of conduct', href: 'CODE_OF_CONDUCT.md' },

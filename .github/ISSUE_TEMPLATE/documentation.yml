@@ -19,7 +19,6 @@ body:
         - docs/totp-working.md
         - docs/database-design.md
         - demo-website/README.md
-        - authenticator-app/README.md
         - examples/
         - Other
     validations:

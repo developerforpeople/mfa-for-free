@@ -31,8 +31,9 @@ Behaviour that is not acceptable:
 
 ## Enforcement
 
-Report unacceptable behaviour to the maintainers at `conduct@nlr-identity.dev`
-*(replace with the maintainer address for your fork)*. All reports will be reviewed and
+Report unacceptable behaviour to the maintainers by contacting
+[@developerforpeople](https://github.com/developerforpeople) directly, or by opening an
+[issue](https://github.com/developerforpeople/mfa-for-free/issues) if the matter is not sensitive. All reports will be reviewed and
 investigated promptly and fairly, and the reporter's privacy will be respected.
 
 Maintainers may warn, temporarily ban, or permanently ban any contributor for behaviour they

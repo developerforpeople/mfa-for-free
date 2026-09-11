@@ -1,8 +1,5 @@
 blank_issues_enabled: true
 contact_links:
   - name: Report a security vulnerability
-    url: https://github.com/your-org/nlr-identity/security/advisories/new
+    url: https://github.com/developerforpeople/mfa-for-free/security/advisories/new
     about: Please report vulnerabilities privately, never as a public issue. See SECURITY.md.
-  - name: Ask a question
-    url: https://github.com/your-org/nlr-identity/discussions
-    about: Questions about how authentication works are welcome here.

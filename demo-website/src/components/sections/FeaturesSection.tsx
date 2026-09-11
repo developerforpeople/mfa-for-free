@@ -7,7 +7,7 @@ import { SectionHeading } from '../SectionHeading';
  *
  * All four are built and working. The labels say where each one runs, because
  * that is the interesting distinction - the website holds the secret and
- * verifies, the phone computes the code offline.
+ * verifies, your authenticator app computes the code offline.
  */
 const features: FeatureCardProps[] = [
   {
@@ -29,14 +29,14 @@ const features: FeatureCardProps[] = [
     title: 'Offline OTP Authentication',
     description:
       'Codes derived from the secret and the clock using HMAC. No network, no round trip, no code in flight to intercept.',
-    phase: 'In the mobile app',
+    phase: 'In your authenticator app',
   },
   {
     icon: 'lock',
     title: 'Encrypted Device Security',
     description:
-      'The seed stored under AES-GCM with the key held by the platform keystore, so a stolen phone is not a stolen identity.',
-    phase: 'In the mobile app',
+      'A good authenticator keeps the seed encrypted under a key held by the phone keystore, so a stolen phone is not a stolen identity.',
+    phase: 'In your authenticator app',
   },
 ];
 

@@ -29,9 +29,10 @@ the flaw before there is a fix.
 
 Instead, use one of these:
 
-1. **GitHub Private Vulnerability Reporting** — go to the repository's **Security** tab and choose
-   *Report a vulnerability*. This is the preferred route.
-2. **Email** — `security@nlr-identity.dev` *(replace with the maintainer address for your fork)*.
+1. **GitHub Private Vulnerability Reporting** — [report a vulnerability](https://github.com/developerforpeople/mfa-for-free/security/advisories/new)
+   privately. This is the preferred route.
+2. **If that page is unavailable**, open an issue titled *"Security contact request"* containing
+   **no details of the problem**, and a maintainer will arrange a private channel.
 
 Please include:
 

@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Check the [phase plan](https://github.com/your-org/nlr-identity#project-status) first.
+        Check the [phase plan](https://github.com/developerforpeople/mfa-for-free#project-status) first.
         Features scheduled for a later phase are already tracked.
   - type: textarea
     id: problem

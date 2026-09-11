@@ -1,7 +1,7 @@
 /**
  * TOTP generation and verification, for the relying party.
  *
- * This is the other half of the handshake. `authenticator-app` computes a code
+ * This is the other half of the handshake. Your authenticator app computes a code
  * from a secret and the clock; this computes the same code independently and
  * compares. Neither side sends the other anything to make it happen.
  *

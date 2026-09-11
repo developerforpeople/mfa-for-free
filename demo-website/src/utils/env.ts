@@ -18,8 +18,8 @@ function read(key: string, fallback = ''): string {
 
 /** Public links used across the site. */
 export const siteConfig = {
-  githubUrl: read('VITE_GITHUB_REPO_URL', 'https://github.com/your-org/nlr-identity'),
-  docsUrl: read('VITE_DOCS_URL', 'https://github.com/your-org/nlr-identity/tree/main/docs'),
+  githubUrl: read('VITE_GITHUB_REPO_URL', 'https://github.com/developerforpeople/mfa-for-free'),
+  docsUrl: read('VITE_DOCS_URL', 'https://github.com/developerforpeople/mfa-for-free/tree/main/docs'),
 } as const;
 
 /**

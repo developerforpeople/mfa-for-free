@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Do not use this form for security vulnerabilities. See
-        [SECURITY.md](https://github.com/your-org/nlr-identity/blob/main/SECURITY.md)
+        [SECURITY.md](https://github.com/developerforpeople/mfa-for-free/blob/main/SECURITY.md)
         for private reporting.
   - type: textarea
     id: what-happened

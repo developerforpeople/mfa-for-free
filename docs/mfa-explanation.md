@@ -127,7 +127,7 @@ You will meet these words in the code and in every article on the subject.
 - **Shared secret / seed** — the random value both the device and the server hold
 - **Enrollment** — the one-time act of giving a device the secret
 - **Relying party** — the application asking "who are you" (here, the demo website)
-- **Authenticator** — the thing that answers (here, the Flutter app)
+- **Authenticator** — the thing that answers (here, the authenticator app on your phone)
 - **Recovery code** — a single-use backup credential for when the device is gone
 - **Step / time step** — the interval a TOTP code is valid for, conventionally 30 seconds
 

@@ -22,9 +22,12 @@ This page draws the line.
 After **any** change, run this. If it passes, you have not broken the logic:
 
 ```bash
-cd demo-website && npm run lint && npm run typecheck && npm run build
-cd ../authenticator-app && flutter analyze && flutter test
+cd demo-website
+npm run lint && npm run typecheck && npm test && npm run build
 ```
+
+`npm test` is the important one. It runs the published RFC test vectors against the TOTP engine,
+plus the replay, drift-window and recovery-code checks. It is also what CI runs on every push.
 
 ---
 
@@ -41,8 +44,8 @@ demo-website/src/
 └── assets/                           Images, icons
 ```
 
-Also green: every piece of user-facing text, the logo, the favicon, `index.html`, the page titles,
-and the app's theme in `authenticator-app/lib/app/theme.dart`.
+Also green: every piece of user-facing text, the logo, the favicon, `index.html`, and the page
+titles.
 
 ### Adding your own dashboard
 
@@ -109,20 +112,15 @@ Form rules and the `@nlr.com` domain policy. Change the domain freely — it is 
 not a security one. Keep the username normalisation (lowercase), or two users can register
 visually identical names.
 
-### `authenticator-app/lib/state/identity_store.dart`
-
-Safe to extend. Keep two things: secrets are encrypted **before** an `Identity` object is built,
-and `lock()` still clears the in-memory cache when the app is backgrounded.
-
 ---
 
 ## 🔴 Red — do not touch without reading the RFCs
 
-### `src/services/totpService.ts` and `authenticator-app/lib/services/totp_service.dart`
+### `src/services/totpService.ts`
 
-The TOTP implementations. These are pinned to the published RFC 6238, RFC 4226 and RFC 4648 test
-vectors, and those vectors are the only reason the website and the phone agree with each other —
-and with Google Authenticator, and with everything else.
+The TOTP engine. It is pinned to the published RFC 6238, RFC 4226 and RFC 4648 test vectors in
+`totpService.test.ts`, and those vectors are the only reason the site agrees with Google
+Authenticator, Microsoft Authenticator, 1Password, and every other TOTP app.
 
 Specific things that look harmless and are not:
 
@@ -135,19 +133,14 @@ Specific things that look harmless and are not:
 | Use local time instead of epoch | Works on your machine, fails for every user elsewhere |
 | Skip `lastUsedCounter` | A captured code can be replayed for the rest of its window |
 
-If you change these files, `flutter test` and the RFC checks are what will tell you. **Do not
-"fix" a failing RFC vector by changing the expected value.** The vector is right; your code is not.
+If you change this file, `npm test` is what will tell you. **Do not "fix" a failing RFC vector by
+changing the expected value.** The vector is right; your code is not.
 
 ### `src/services/recoveryService.ts`
 
 PBKDF2 hashing of recovery codes. Do not lower the iteration count, do not swap PBKDF2 for a bare
 SHA-256, and do not remove the per-code salt. These are credentials; a fast hash makes an offline
 search of the keyspace practical.
-
-### `authenticator-app/lib/services/encryption_service.dart`
-
-AES-256-GCM. Never reuse an IV — a repeated nonce under one key breaks GCM completely, leaking the
-keystream *and* the authentication key. Never switch GCM for CBC; you would lose tamper detection.
 
 ### `firestore.rules`
 
@@ -159,20 +152,16 @@ against — read them before editing, and test against the emulator.
 
 ## Things you must never do
 
-1. **Never commit `.env.local`, `.firebaserc`, or `google-services.json`.** They are git-ignored.
-   Leave them that way.
+1. **Never commit `.env.local` or `.firebaserc`.** They are git-ignored. Leave them that way.
 2. **Never log, store, or transmit a one-time code.** It is computed, compared, discarded.
 3. **Never store a recovery code in plaintext.** Hash it.
 4. **Never display a device secret after enrollment.** It is shown once, deliberately.
 5. **Never use `Math.random()`** for a secret, a code, an id, or a salt. Use
-   `crypto.getRandomValues` / `Random.secure()`.
+   `crypto.getRandomValues`.
 6. **Never trust the browser's verdict.** In this demo the browser verifies codes, which is the
    one shortcut the project takes and documents everywhere. Before real use, move verification to
    a server — [the Cloud Functions walkthrough](examples/integration-examples/firebase-cloud-functions.md)
    is that change, written out in full.
-7. **Never grant the Flutter app the INTERNET permission.** Release builds ship without it on
-   purpose, so "this app cannot phone home" is enforced by Android rather than promised in a
-   settings screen.
 
 ---
 
@@ -183,11 +172,9 @@ Renaming it to your own project:
 | What | Where |
 |---|---|
 | Site name and copy | `demo-website/src/components/sections/`, `index.html` |
-| Colours and type | `demo-website/src/styles/index.css`, `authenticator-app/lib/app/theme.dart` |
+| Colours and type | `demo-website/src/styles/index.css` |
 | Identity domain (`@nlr.com`) | `demo-website/src/utils/identity.ts` → `NLR_DOMAIN` |
 | Issuer shown in authenticators | `demo-website/src/services/mfaService.ts` → `ISSUER` |
-| App display name | `authenticator-app/android/app/src/main/AndroidManifest.xml`, `ios/Runner/Info.plist` |
-| Android package id | `authenticator-app/android/app/build.gradle.kts` (and the Kotlin folder path) |
 | Repo links | `demo-website/.env.example` → `VITE_GITHUB_REPO_URL` |
 
 Change `ISSUER` and `NLR_DOMAIN` **before** anyone enrols. Both are baked into the QR code, so

@@ -54,6 +54,7 @@ account needed) and a real project.
 | `npm run lint` | ESLint across the project |
 | `npm run lint:fix` | ESLint with autofix |
 | `npm run typecheck` | `tsc` with no emit |
+| `npm test` | RFC conformance and security tests (Vitest) |
 | `npm run format` | Prettier over `src/` |
 | `npm run totp-doctor -- <key> <code>` | Diagnoses a rejected code by measuring clock skew |
 
@@ -163,8 +164,10 @@ and expensive to get wrong:
 | Salted per code | Two identical codes must not produce identical hashes |
 | No early return on match | Checking all hashes stops timing revealing which code matched |
 
-All of it is verified against the published RFC 6238, RFC 4226 and RFC 4648 vectors - the same
-vectors the Flutter app is tested against, which is what proves the two halves interoperate.
+All of it is verified against the published RFC 6238, RFC 4226 and RFC 4648 vectors in
+`src/services/*.test.ts` - the same vectors every standard authenticator implements, which is why
+the enrollment QR works in Google Authenticator, Microsoft Authenticator, or any other TOTP app.
+Run them with `npm test`.
 
 ## Environment Variables
 

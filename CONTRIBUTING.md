@@ -18,16 +18,16 @@ You do not have to write cryptography to be useful.
 
 1. **Open an issue first** for anything larger than a typo fix. It saves you from building
    something we were planning to design differently.
-2. **Check the current phase** in the [README](README.md#project-status). Phase 1 is repository
-   foundation and documentation only — PRs implementing OTP generation or the Flutter app are
-   premature and will be held, not merged.
+2. **Read [CUSTOMISING.md](CUSTOMISING.md) before touching authentication code.** It marks which
+   files are design and which are load-bearing, and a PR that changes the TOTP engine needs to
+   explain why the RFC tests still pass.
 3. **One concern per pull request.** A PR that fixes a bug *and* refactors a folder is two PRs.
 
 ## Development Setup
 
 ```bash
-git clone https://github.com/your-org/nlr-identity.git
-cd nlr-identity/demo-website
+git clone https://github.com/developerforpeople/mfa-for-free.git
+cd mfa-for-free/demo-website
 npm install
 cp .env.example .env.local
 npm run dev
@@ -38,10 +38,11 @@ Before you push:
 ```bash
 npm run lint       # ESLint
 npm run typecheck  # tsc --noEmit
+npm test           # RFC conformance and security tests
 npm run build      # must succeed
 ```
 
-All three must pass. CI runs the same commands.
+All four must pass. CI runs the same commands.
 
 ## Branch and Commit Conventions
 
@@ -148,6 +149,5 @@ participate in.
 
 ## Questions
 
-Open a [Discussion](https://github.com/your-org/nlr-identity/discussions) or ask in the issue you
-are working on. "I don't understand why this works" is a legitimate issue in this repository — it
+Open an [issue](https://github.com/developerforpeople/mfa-for-free/issues) or ask in the one you are working on. "I don't understand why this works" is a legitimate issue in this repository — it
 usually means the documentation needs improving.

@@ -42,8 +42,9 @@ afternoon:
 
 1. A **demo website** (React + TypeScript) that plays the role of the relying party — the app that
    wants to be sure who you are.
-2. A **Flutter authenticator app** (future phase) that plays the role of the trusted device —
-   it stores secrets encrypted and generates codes offline.
+2. **Any standard authenticator app** — Google Authenticator, Microsoft Authenticator,
+   1Password — plays the role of the trusted device, generating codes offline from the secret it
+   scanned. The enrollment QR is a standard `otpauth://` URI, so no custom app is needed.
 3. A **documentation set** that explains the cryptography and the protocol in plain language,
    with the RFCs linked for when you want the formal version.
 
@@ -55,8 +56,8 @@ You get to see both sides of the handshake, which is the part a single tutorial 
 |---|---|---|---|
 | ✓ | **NLR Identity Account** | Identity creation, credential storage, account state | Working |
 | ✓ | **QR Device Enrollment** | Out-of-band secret transfer and one-time provisioning | Working |
-| ✓ | **Offline OTP Generation** | TOTP, HMAC, and time-based synchronisation without a network | Working |
-| ✓ | **Encrypted Secret Storage** | AES-GCM at rest, key derivation, OS keystore boundaries | Working |
+| ✓ | **Offline OTP Generation** | TOTP, HMAC, and time-based synchronisation without a network | In your authenticator app |
+| ✓ | **Encrypted Secret Storage** | Protecting the seed at rest with the OS keystore | In your authenticator app |
 | ✓ | **Multiple Device Support** | One identity, many authenticators, per-device revocation | Working |
 | ✓ | **Recovery Codes** | Single-use backup credentials and safe hashing | Working |
 | ✓ | **Open Source Learning Platform** | Readable code, documented decisions, no black boxes | Working |
@@ -67,7 +68,7 @@ You get to see both sides of the handshake, which is the part a single tutorial 
 flowchart TD
     A[User] --> B[Website]
     B --> C[QR Enrollment]
-    C --> D[Flutter Authenticator App]
+    C --> D[Authenticator App]
     D --> E[OTP Generation]
     E --> F[Website Verification]
 ```
@@ -104,7 +105,6 @@ nlr-identity/
 │   ├── totp-working.md          How the 6 digits are computed
 │   └── database-design.md       Firestore collections and rules
 ├── demo-website/                React + TypeScript + Vite + Tailwind demo
-├── authenticator-app/           Flutter authenticator (Android + iOS)
 ├── firestore.rules              Firestore security rules - the real access control
 ├── firebase.json                Emulator, rules, and hosting configuration
 └── examples/
@@ -117,8 +117,8 @@ Requires **Node.js 20.19+ or 22.12+** and npm.
 
 ```bash
 # 1. Clone
-git clone https://github.com/your-org/nlr-identity.git
-cd nlr-identity/demo-website
+git clone https://github.com/developerforpeople/mfa-for-free.git
+cd mfa-for-free/demo-website
 
 # 2. Install
 npm install
@@ -161,7 +161,7 @@ NLR Identity is built in phases so each one stays readable.
 |---|---|---|
 | **1** | Repository foundation, documentation, landing page, design system | ✅ Complete |
 | **2** | Firebase Auth, identity creation, login, MFA enrollment QR | ✅ Complete |
-| **3** | Flutter authenticator app, TOTP engine, encrypted storage | ✅ Complete |
+| **3** | Companion authenticator app | Not published here — any TOTP app works |
 | **4** | Code verification, recovery codes, multi-device management | ✅ Complete |
 
 ### Phase 4 completed
@@ -174,15 +174,6 @@ NLR Identity is built in phases so each one stays readable.
 - **Device management** - revoke any device; the last one turning off MFA is spelled out first
 - **Server-side example** - [Cloud Functions walkthrough](examples/integration-examples/firebase-cloud-functions.md)
   showing how to move verification off the client
-
-### Phase 3 completed
-
-- **Flutter authenticator app** - `authenticator-app/`, package `com.nlr.identity.authenticator`
-- **RFC 6238 TOTP engine** - implemented by hand, verified against the published RFC vectors
-- **QR enrollment** - `otpauth://` scanning with ML Kit, plus a manual setup-key path
-- **AES-256-GCM encrypted storage** - key in the Android Keystore / iOS Keychain
-- **Multiple identity management** - many accounts on one device, each independently removable
-- **Genuinely offline** - release builds ship with no `INTERNET` permission at all
 
 ### Phase 2 completed
 

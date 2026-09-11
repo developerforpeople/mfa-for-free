@@ -19,7 +19,6 @@ If you have thirty minutes, read 1 and 2. If you are about to write code, read 3
 ## Elsewhere in the Repository
 
 - [Demo website](../demo-website/README.md) - the React app and its design system
-- [Authenticator app](../authenticator-app/README.md) - the Flutter app, planned for Phase 3
 - [Integration examples](../examples/integration-examples/README.md) - adding MFA to your own project
 - [Security policy](../SECURITY.md) - the invariants, and how to report a vulnerability
 - [Contributing](../CONTRIBUTING.md) - how to work on this
